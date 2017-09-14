@@ -42,8 +42,6 @@ sub import {
 sub filter {
     my $self = shift;
 
-    return 0 if $self->{done};
-
     my $lines = $self->{lines};
     my $fh    = $self->{fh};
 
