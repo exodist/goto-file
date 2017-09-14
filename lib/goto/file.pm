@@ -11,27 +11,41 @@ our %HANDLES;
 my $ID = 1;
 sub import {
     my $class = shift;
-    my ($file) = @_;
+    my ($in) = @_;
 
-    return unless $file;
+    return unless $in;
 
-    my @lines;
-    push @lines => "#line " . __LINE__ . ' "' . __FILE__ . '"';
-    push @lines => "package main;";
-    push @lines => "\$@ = '';";
+    my ($fh, @lines);
 
-    my $id = $ID++;
+    if (ref($in) eq 'ARRAY') {
+        my ($pkg, $file, $line) = caller(0);
+        my $safe = $file;
+        $safe =~ s/"/\\"/;
 
-    open(my $fh, '<', $file) or die "Cold not open file '$file': $!";
+        @lines = (
+            "package $pkg;",
+            "#line 1 \"lines from $safe line $line\"",
+            @$in,
+        );
+    }
+    else {
+        push @lines => "#line " . __LINE__ . ' "' . __FILE__ . '"';
+        push @lines => "package main;";
+        push @lines => "\$@ = '';";
 
-    $HANDLES{$id} = $fh;
-    my $safe = $file;
-    $safe =~ s/"/\\"/;
-    push @lines => "#line " . (__LINE__ + 2) . ' "' . __FILE__ . '"';
-    push @lines => (
-        '{ local ($!, $?, $^E, $@); close(DATA); *DATA = $' . __PACKAGE__ . '::HANDLES{' . $id . '} }',
-        qq{#line 1 "$safe"},
-    );
+        my $id = $ID++;
+
+        open($fh, '<', $in) or die "Cold not open file '$in': $!";
+
+        $HANDLES{$id} = $fh;
+        my $safe = $in;
+        $safe =~ s/"/\\"/;
+        push @lines => "#line " . (__LINE__ + 2) . ' "' . __FILE__ . '"';
+        push @lines => (
+            '{ local ($!, $?, $^E, $@); close(DATA); *DATA = $' . __PACKAGE__ . '::HANDLES{' . $id . '} }',
+            qq{#line 1 "$safe"},
+        );
+    }
 
     Filter::Util::Call::filter_add(
         bless { fh => $fh, lines => \@lines },
@@ -125,6 +139,15 @@ More useful:
     }
 
     print "Did not go to a file\n";
+
+Another thing you can do:
+
+    use goto::file [
+        'print "Hi!\n";',
+        "exit 0",
+    ];
+
+    die "Will not get here";
 
 =head1 NOTES
 
