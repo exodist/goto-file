@@ -50,6 +50,15 @@ More useful:
 
     print "Did not go to a file\n";
 
+Another thing you can do:
+
+    use goto::file [
+        'print "Hi!\n";',
+        "exit 0",
+    ];
+
+    die "Will not get here";
+
 # NOTES
 
 - \_\_DATA\_\_ and <DATA>
