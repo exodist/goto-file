@@ -2,7 +2,7 @@ package goto::file;
 use strict;
 use warnings;
 
-our $VERSION = '0.003';
+our $VERSION = '0.004';
 
 use Filter::Util::Call qw/filter_add/;
 
