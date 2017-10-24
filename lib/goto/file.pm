@@ -64,14 +64,18 @@ sub filter {
     }
 
     my $lines = $self->{lines};
-    my $fh    = $self->{fh};
+    my $fh = $self->{fh};
 
     my $line;
     if (@$lines) {
         chomp($line = shift @$lines);
         $line .= "\n";
     }
-    elsif ($fh) {
+    elsif($fh) {
+        # We do this to prevent ', <$fh> at line #' being appended to
+        # exceptions and warnings.
+        local $.;
+
         $line = <$fh>;
     }
 

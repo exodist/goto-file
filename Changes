@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+    - Prevent "<$fh> at line" being appended to warnings and exceptions
+
 0.004     2017-09-15 08:37:18-07:00 America/Los_Angeles
 
     - Better handling of strange EOFs
